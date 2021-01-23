@@ -1,0 +1,1 @@
+int e = sizeof(edges) / sizeof(edges[0]);
