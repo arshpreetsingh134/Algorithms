@@ -5,7 +5,7 @@ using namespace std;
 
 int countUnique(string str)
 {
-    // Here we use a set for the lookup operation
+    // Here we use a set for the lookup() operation
     unordered_set<char> strSet;
     for (auto s : str)
         strSet.insert(s);
