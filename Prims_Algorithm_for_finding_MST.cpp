@@ -1,26 +1,16 @@
-// Dijkstra's Algorithm using Min Heap (O(V + ElogV))
-
-// Uncomment lines 72, 73 for Undirected Version
-
-// In Dijkstra’s algorithm, two sets are maintained, one set contains list
-// of vertices already included in SPT (Shortest Path Tree), other set contains
-// vertices not yet included. Min Heap is used as a priority queue to get the
-// minimum distance vertex from set of not yet included vertices. Time complexity
-// of operations like extract-min and decrease-key value is O(LogV) for Min Heap.
+// Prim's Algorithm for finding the Minimum Spanning Tree (MST) of a graph using Min Heap
 
 #include <iostream>
 #include <vector>
-#include <cmath>
+#include <algorithm> // For std::make_heap()
 #include <climits>
-
-#include <list>
 using namespace std;
 
 // DS to store info about a Node (or Vertex)
 struct Node
 {
     int val;
-    int weight;
+    int weight; // Weight of edge joining this vertex & the source
     Node *next;
 
     /** For constructing a Node **/
@@ -32,7 +22,7 @@ struct Node
     }
 };
 
-// DS to store Graph Edges
+// DS to store info about Graph Edges
 struct Edge
 {
     int src;
@@ -43,38 +33,36 @@ struct Edge
 class Graph
 {
 public:
-    // No. of nodes in the graph
-    int N;
+    int N; // No. of vertices in the Graph
 
     // An array of pointers to Node to represent
     // adjacency list
     Node **head;
 
-    // Constructor for constructing an undirected graph
     Graph(Edge edges[], int e, int N)
     {
         this->N = N;
 
         head = new Node *[N]();
 
-        // Add edges to the adjacency list
+        // Adding edges to the Adjacency List
         for (int i = 0; i < e; i++)
         {
             int src = edges[i].src;
             int dest = edges[i].dest;
             int weight = edges[i].weight;
 
-            // Link the src Node to the dest
+            // Link the src node to the dest
             Node *new_node = new Node(dest, weight, head[src]);
             head[src] = new_node;
 
-            // For an Undirected Graph, uncomment the following lines
-            // new_node = new Node(src, weight, head[dest]);
-            // head[dest] = new_node;
+            // Link the dest node to the src
+            new_node = new Node(src, weight, head[dest]);
+            head[dest] = new_node;
         }
     }
 
-    // Destructor
+    // Destructor of memory
     ~Graph()
     {
         for (int i = 0; i < N; i++)
@@ -92,7 +80,7 @@ struct MNode
               // INF, if node isn't explored yet
 };
 
-// Structure to represent a MinHeap
+// Class to represent a MinHeap
 class MinHeap
 {
     int size;     // Number of heap nodes present currently
@@ -201,7 +189,7 @@ public:
         return min;
     }
 
-    // To update the Priority of position i in the Queue (O(lgn))
+    // To update the Priority of position i in the Queue (O(logn))
     void decreaseKey(int v, int dist)
     {
         // Get position of current Node
@@ -242,83 +230,85 @@ public:
     }
 };
 
-// A utility function used to print the solution
-void printArr(vector<int> &dist, int n)
+void Prim(Graph *graph, int src)
 {
-    cout << "Vertex Distance from Source\n";
-    for (int i = 0; i < n; ++i)
-        cout << i << " \t\t " << dist[i] << endl;
-}
+    int V = graph->N; // No. of vertices in the graph
 
-// Main function that calculates
-// distances of shortest paths from src to all
-// vertices. It is a O(ELogV) function
-void Dijkstra(Graph *graph, int src)
-{
-    // Get the no. of vertices in the graph
-    int V = graph->N;
+    vector<int> key(V, INT_MAX);    // For keeping track of key values for each node
+                                    // Fill each node's key as INF initially
+    vector<int> mst;                // For keeping track of MST vertices
+    vector<int> parent(V);          // For keeping track of u-v pair
 
-    // For keeping track of dist values for each node
-    // Fill each node's dist as INF initially
-    vector<int> dist(V, INT_MAX);
+    MinHeap *minHeap = new MinHeap(V, key);
 
-    // Initialize MinHeap
-    MinHeap *minHeap = new MinHeap(V, dist);
-
-    // Make dist vertex of src vertex 0 so that it is extracted first
+    // Consider the first vertex
     minHeap->decreaseKey(src, 0);
 
-    // In the following loop, minHeap contains
-    // all the nodes whose shortest distance is
-    // not yet evaluated (unexplored)
     while (!minHeap->isEmpty())
     {
-        // Extract the node with Min Distance Value
+        // Extract the node with minimum weight
         MNode *minHeapNode = minHeap->extractMin();
 
-        // Store the extracted node number
         int u = minHeapNode->val;
-        dist[u] = minHeapNode->dist;
+        key[u] = minHeapNode->dist;
+        mst.push_back(u);
 
-        // Traverse through all the adjacent vertices of the extracted
-        // vertex 'u' and update their distance values
+        // Traverse through all the adjacent vertices of the
+        // extracted vertex 'u' and update their keys in the heap
         Node *temp_node = graph->head[u];
-        while (temp_node != nullptr)
+        while (temp_node != NULL)
         {
             int v = temp_node->val;
 
-            // If shortest distance to v is
-            // not finalized yet, and distance to v
-            // through u is less than its
-            // previously calculated distance
-            if (minHeap->isInMinHeap(v) &&
-                (dist[u] != INT_MAX) && (temp_node->weight + dist[u] < dist[v]))
+            // If vertex 'v' isn't yet present in MST and key 
+            // of 'v' is greater than the current frontier dist
+            // between 'u' and 'v', then update it
+            if (find(mst.begin(), mst.end(), v) == mst.end() &&
+                minHeap->isInMinHeap(v) &&
+                (key[u] != INT_MAX) &&
+                key[v] > temp_node->weight)
             {
-                dist[v] = dist[u] + temp_node->weight;
-
-                // update distance value in minHeap also
-                minHeap->decreaseKey(v, dist[v]);
+                key[v] = temp_node->weight;
+                minHeap->decreaseKey(v, key[v]);
+                parent[v] = u;
             }
-
             temp_node = temp_node->next;
         }
     }
 
-    printArr(dist, V);
+    int sum = 0;
+    for (int i = 1; i < V; i++)
+    {
+        cout << i << " -- " << parent[i] << " ; Weight: " << key[i] << endl;
+        sum+=key[i];
+    }
+
+    cout << "\nTotal cost of this MST is: " << sum;
 }
 
 int main()
 {
-    int V = 6;
+    // int V = 4;
+    // Edge edges[] = {{0, 1, 1}, {1, 3, 2}, {2, 3, 5}, {0, 2, 4}, {0, 3, 3}};
 
-    // GfG Graph (Undirected)
-    // Edge edges[] = {{0, 1, 4}, {0, 7, 8}, {1, 2, 8}, {1, 7, 11}, {2, 3, 7}, {2, 8, 2}, {2, 5, 4}, {3, 4, 9}, {3, 5, 14}, {4, 5, 10}, {5, 6, 2}, {6, 7, 1}, {6, 8, 6}, {7, 8, 7}};
-
-    // Abdul Bari Graph
-    Edge edges[] = {{0, 1, 2}, {1, 3, 7}, {3, 5, 1}, {0, 2, 4}, {2, 4, 3}, {4, 5, 5}, {1, 2, 1}, {4, 3, 2}};
+    int V = 9;
+    Edge edges[] = {{0, 1, 4},
+                    {0, 7, 8},
+                    {1, 2, 8},
+                    {1, 7, 11},
+                    {2, 3, 7},
+                    {2, 8, 2},
+                    {2, 5, 4},
+                    {3, 4, 9},
+                    {3, 5, 14},
+                    {4, 5, 10},
+                    {5, 6, 2},
+                    {6, 7, 1},
+                    {6, 8, 6},
+                    {7, 8, 7}};
 
     int e = sizeof(edges) / sizeof(edges[0]);
     Graph graph(edges, e, V);
 
-    Dijkstra(&graph, 0);
+    Prim(&graph, 0);
 }

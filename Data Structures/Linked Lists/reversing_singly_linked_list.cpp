@@ -86,7 +86,8 @@ public:
         }
     }
 
-    Node* reverseList()
+    // Method 1: Iterative
+    Node* reverseList1()
     {
         // If LinkedList is empty or has just one node, 
         // it is trivially reversed
@@ -109,6 +110,22 @@ public:
 
         return reversed;
     }
+
+    // Method 2: Recursive
+    Node* reverseList2(Node* node)
+    {
+        // empty list base case
+        if (node == nullptr || node->next == nullptr)
+            return node;
+
+        Node* rev = reverseList2(node->next);     // recursively reverse the smaller {2, 3} case
+                                // after: rest = {3, 2}
+
+        node->next->next = node; // put the first item at the end of the list
+        node->next = nullptr;     // (tricky step —— make a drawing)
+        
+        return rev;
+    }
 };
 
 // Driver code
@@ -128,11 +145,7 @@ int main()
     puts("Created Linked List: ");
     obj->printList(obj->getHead());
 
-    obj->deleteNode(1);
-    puts("\nLinked List after Deletion of 1: ");
-    obj->printList(obj->getHead());
-
-    Node* reversed = obj->reverseList();
+    Node *reversed = obj->reverseList2(obj->getHead());
 
     puts("\nLinked List after Reversing: ");
     obj->printList(reversed);
