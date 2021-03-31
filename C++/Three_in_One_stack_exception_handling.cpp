@@ -1,4 +1,4 @@
-// Implementing 3 stacks using 1 array- fixed (predetermined) size
+// Implementing 3 stacks using 1 array
 #include <iostream>
 #include <cmath>
 #include <exception>
@@ -127,7 +127,7 @@ int main()
     FixedMultiStack *obj = new FixedMultiStack(5);
     obj->push(1, 58);
     obj->push(2, 96);
-    obj->push(2, 10);
+    obj->push(2, 102);
     obj->push(0, 21);
     obj->push(0, 46);
     obj->push(0, 54);
@@ -138,7 +138,7 @@ int main()
     cout << "\nPopped: " << obj->pop(2);
     obj->pop(2); // This will generate exception
 
-    int stackNo = 0;
+    int stackNo = 2;
     cout << "\nTopmost element in stack " << stackNo + 1 << ": " << obj->peek(stackNo);
     cout << "\nValues in stack " << stackNo + 1 << " are: ";
     obj->printStack(stackNo);

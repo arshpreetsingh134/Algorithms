@@ -138,9 +138,11 @@ int main()
     // Add elements in linked list
     obj->insertNode(7);
     obj->insertNode(1);
-    obj->insertNode(3);
+    obj->insertNode(13);
     obj->insertNode(2);
     obj->insertNode(8);
+    obj->insertNode(11);
+    obj->insertNode(5);
 
     puts("Created Linked List: ");
     obj->printList(obj->getHead());
