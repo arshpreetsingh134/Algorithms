@@ -12,7 +12,7 @@ class FixedMultiStack
     int *stackValues;
     int arr_len;
 
-    class myException: public exception
+    class myException : public exception
     {
     public:
         const char *what() const throw()
@@ -59,12 +59,12 @@ public:
     void push(int stackNo, int value)
     {
         // Check if we have space for the next element
-        if(isFull(stackNo))
+        if (isFull(stackNo))
         {
-            cout<<"\nStack overflow!\n";
+            cout << "\nStack overflow!\n";
             return;
         }
-        
+
         stackSizes[stackNo]++;
         stackValues[topOf(stackNo)] = value;
         cout << value << " added at index " << stackSizes[stackNo] << " in stack " << stackNo + 1 << endl;
@@ -140,7 +140,7 @@ int main()
     obj->pop(2); // This will generate exception
 
     int stackNo = 0;
-    cout << "\nTopmost element in stack " << stackNo + 1 << ": " << obj->peek(stackNo);
+    cout << "\nTopmost element in the stack " << stackNo + 1 << ": " << obj->peek(stackNo);
     cout << "\nValues in stack " << stackNo + 1 << " are: ";
     obj->printStack(stackNo);
 }
