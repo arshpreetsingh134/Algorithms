@@ -1,3 +1,5 @@
+// Implementing a Queue using 2 Stacks
+
 #include <iostream>
 using namespace std;
 
@@ -33,7 +35,7 @@ public:
         return item;
     }
 
-    S push(int data)
+    void push(int data)
     {
         Node *new_node = new Node(data, top);
         top = new_node;
@@ -62,16 +64,16 @@ template <typename S>
 class Queue
 {
     // Declare the 2 stacks
-    Stack<S> *s1;          // Stack having the newest elements on top
-    Stack<S> *s2;          // Stack having the oldest elements on top
+    Stack<S> *s1; // Stack having the newest elements on top
+    Stack<S> *s2; // Stack having the oldest elements on top
 
     // Move all elements from s1 (stack with newest elements on top) to s2 (stack
     // with oldest elements on top), in order to perform pop() operations on s2
     void shiftStacks()
     {
-        if(s2->isEmpty())
+        if (s2->isEmpty())
         {
-            while(!s1->isEmpty())
+            while (!s1->isEmpty())
             {
                 s2->push(s1->pop());
             }
@@ -98,8 +100,8 @@ public:
 
     S remove()
     {
-        shiftStacks();      // To ensure that s2 contains all elements currently added
-        return s2->pop();     // Pop the oldest item from stack s2
+        shiftStacks();    // To ensure that s2 contains all elements currently added
+        return s2->pop(); // Pop the oldest item from stack s2
     }
 
     S peek()
@@ -107,7 +109,6 @@ public:
         shiftStacks();
         return s2->peek();
     }
-
 };
 
 int main()

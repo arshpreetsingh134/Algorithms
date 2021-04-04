@@ -33,7 +33,7 @@ public:
         return item;
     }
 
-    S push(int data)
+    void push(int data)
     {
         Node *new_node = new Node(data, top);
         top = new_node;
