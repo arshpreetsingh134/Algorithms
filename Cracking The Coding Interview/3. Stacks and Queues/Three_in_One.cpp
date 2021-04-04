@@ -17,7 +17,7 @@ class FixedMultiStack
     public:
         const char *what() const throw()
         {
-            cout << "\nStack Underflow!\n";
+            return "\nStack Underflow!\n";
         }
     };
 
@@ -73,20 +73,21 @@ public:
     // Pop an element from the stack
     int pop(int stackNo)
     {
+        int top;
         try
         {
             if (isEmpty(stackNo))
                 throw new myException();
 
-            int top = stackValues[topOf(stackNo)];
+            top = stackValues[topOf(stackNo)];
             stackValues[topOf(stackNo)] = 0;
             stackSizes[stackNo]--;
-            return top;
         }
         catch (const std::exception *e)
         {
             e->what();
         }
+        return top;
     }
 
     // Return the topmost element in the stack
@@ -96,12 +97,12 @@ public:
         {
             if (isEmpty(stackNo))
                 throw new myException();
-            return stackValues[topOf(stackNo)];
         }
         catch (const std::exception *e)
         {
             e->what();
         }
+        return stackValues[topOf(stackNo)];
     }
 
     // Prints the values in the Stack

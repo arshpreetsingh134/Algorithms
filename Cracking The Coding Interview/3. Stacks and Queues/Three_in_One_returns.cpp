@@ -1,241 +1,294 @@
 // Implementing 3 stacks using 1 array- fixed (predetermined) size
 #include <iostream>
-#include <cmath>
+#include <vector>
 #include <exception>
-#define my_sizeof(type) ((char *)(&type + 1) - (char *)(&type))
 using namespace std;
+int N; // Size of the Main Array- Declared Globally
 
-class MultiStack
+class Stacks
 {
+private:
     // Sub-class for handling exceptions
     class myException : public exception
     {
     public:
         const char *what() const throw()
         {
-            cout << "\nStack Underflow!\n";
+            return "\nStack Underflow!\n";
         }
     };
 
-    int *values;        // Array of values (the main array to hold 3 stacks)
-    int sizeOf(int *);  // Utility Function to calculate size of array
-    
     // Sub-class for holding a set of data about each stack
-    class StackInfo
+    class stackInfo
     {
-        public:
-        int start, size, capacity;
+    public:
+        int startIndex, stackSize, capacity;
 
-        StackInfo(){}
+        stackInfo(){};
 
-        StackInfo(int start, int capacity)
+        stackInfo(int startIndex, int capacity)
         {
-            this->start = start;        // Index of start of each stack
-            this->capacity = capacity;  // Capacity of each stack
+            this->startIndex = startIndex; // Index of start of each stack
+            this->capacity = capacity;     // Capacity of each stack
+            this->stackSize = 0;
         }
 
-        // Check if an index on the full array is within the stack boundaries. 
+        // Adjusting the index accordingly (wrapping around)
+        // if it exceeds or preceeds the array constraints
+        int adjustIndex1(int index)
+        {
+            int max = N; // N;
+            return (((index % max) + max) % max);
+        }
+
+        // Index of topmost element of the Stack
+        int lastElementIndex()
+        {
+            return (adjustIndex1(startIndex + stackSize - 1));
+        }
+
+        // Index of topmost position in the Stack
+        int lastCapacityIndex()
+        {
+            return (adjustIndex1(startIndex + capacity - 1));
+        }
+
+        // Check if an index on the full array is within the stack boundaries.
         // The stack can wrap around to the start of the array
         bool isWithinStackCapacity(int index)
         {
-            // If outside of the bounds of array, return false
-            if(index<0 || index>=sizeOf(values))
+            // If outside of bounds of array, return false
+            if (index < 0 || index >= N)
                 return false;
 
-            // If index wraps around, adjust it
-            int contiguousIndex = index<start?index+sizeOf(values):index;
-            int end = start + capacity;
-            return start<=contiguousIndex && contiguousIndex<end;
+            // If inside the bounds of array but wraps around,
+            // then first adjust it, and then check
+            int newIndex = index < startIndex ? index + N : index;
+            int end = startIndex + capacity;
+            return (startIndex < newIndex && newIndex < end);
         }
 
-        int lastCapacityIndex()
+        // Check if the stack is empty
+        bool isEmpty()
         {
-            return (start+capacity-1);
-        }
-        
-        int lastElementIndex()
-        {
-            return (start + size - 1);
+            return (stackSize == 0);
         }
 
-        // Check if the given stack is full/empty
-        bool isFull() { return size == capacity; }
-        bool isEmpty() { return size == 0; }
+        // Check if the stack is full
+        bool isFull()
+        {
+            return (stackSize == capacity);
+        }
     };
 
-    StackInfo* info;     // Array of 3 stacks (info)
-    int sizeOf(StackInfo*); // (same)
-    void shift(int);             // Shifting stacks one by one to make more space
-    void expand(int);            // Expand stack by shifting over other stacks
-    int adjustIndex(int);        // Adjust the given index so as to be within the range
-    int previousIndex(int);      // Fetch the previous index in the array
-    int nextIndex(int);          // Fetch the next index in the array
+    stackInfo *StackInfo;                   // Array of 3 stacks (info)
+    vector<int> mainArr{vector<int>(N, 0)}; // Array of values (the main array to hold 3 stacks)
+    int numStacks;
+    int defaultSize;
+
+    // Function Prototypes
+    int totalElementsInArray(); // Returns the no. of items actually present in the array
+    bool allStacksAreFull();    // Check if all stacks are full
+    void shift(int);            // Shifting stacks one by one to make more space
+    void expand(int);           // Expand stack by shifting over other stacks
+    int adjustIndex(int);       // Adjust the given index so as to be within the range
+    int previousIndex(int);     // Fetch the previous index in the array
+    int nextIndex(int);         // Fetch the next index in the array
 
 public:
-
-    bool allStacksAreFull();    // Check if all stacks are full
-    int numElements();          // Returns the no. of items actually present in the array
-
     // Constructor for creating metadata for all the stacks.
     // We pass the no. of stacks we need (3) and the default
     // size of each stack as parameters
-    MultiStack(int num_stacks, int defaultSize)
+    Stacks(int numStacks, int defaultSize)
     {
-        // Initiate an array of objects for storing info of 3 stacks
-        info = new StackInfo[num_stacks];
+        StackInfo = new stackInfo[numStacks];
 
-        // Fill info for each of the 3 stacks
-        for(int i=0; i<num_stacks; i++)
-            info[i] = StackInfo(defaultSize*i, defaultSize);
+        this->numStacks = numStacks;
+        this->defaultSize = defaultSize;
 
-        values = new int[defaultSize*num_stacks];
+        for (int i = 0; i < numStacks; i++)
+        {
+            StackInfo[i] = stackInfo(defaultSize * i, defaultSize);
+        }
+
+        //mainArr.resize(numStacks * defaultSize);
     }
 
     // Push value onto stackNo, shifting/ expanding stacks as necessary
     void push(int stackNo, int value)
     {
-        // Exception: Stack Overflow
         if (allStacksAreFull())
         {
-            cout<<"All 3 Stacks Overflowed!";
+            cout << "Stack Overflow";
             return;
         }
 
         // If stack is full, expand it
-        StackInfo stack = info[stackNo];
-        if(stack.isFull())
+        if (StackInfo[stackNo].isFull())
             expand(stackNo);
 
-        // Find the index of topmost element of the stack and increment it
-        stack.start++;
-        values[stack.lastElementIndex()] = value;
+        // Find the index of the top element in the array + 1, and increment the
+        // stack pointer
+        StackInfo[stackNo].stackSize++;
+        mainArr[StackInfo[stackNo].lastElementIndex()] = value;
     }
 
     // Remove value from the stack
     int pop(int stackNo)
     {
-        StackInfo stack = info[stackNo];
+        int del;
         try
         {
-            if (stack.isEmpty())
-                throw new myException();
-            
-            // Remove last element from the stack
-            int value = values[stack.lastElementIndex()];
-            values[stack.lastElementIndex()] = 0;   // Clear Item
-            stack.size--;
-            return value;
+            if (StackInfo[stackNo].isEmpty())
+                throw new exception();
         }
-        catch(const std::exception* e)
+        catch (const std::exception &e)
         {
-            e->what();
-        }  
+            std::cerr << e.what() << '\n';
+        }
+
+        // Remove last element from the stack
+        int curr_index = StackInfo[stackNo].lastElementIndex();
+        del = mainArr[curr_index];
+        mainArr[curr_index] = 0;
+        StackInfo[stackNo].stackSize--;
+        return del;
     }
 
     // Fetch the top element of stack
     int peek(int stackNo)
     {
-        StackInfo stack = info[stackNo];
-        return values[stack.lastElementIndex()];
+        try
+        {
+            if (StackInfo[stackNo].isEmpty())
+                throw new exception();
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+
+        return mainArr[StackInfo[stackNo].lastElementIndex()];
+    }
+
+    void displayStacks()
+    {
+        cout << endl;
+        for (int i = 0; i < numStacks; i++)
+        {
+            stackInfo si = StackInfo[i];
+            cout << "\nStack No." << i + 1 << ": ";
+
+            for (int j = si.startIndex; j <= si.lastElementIndex(); j++)
+            {
+                if (j > N)
+                    j = adjustIndex(j);
+
+                cout << mainArr[j] << " ";
+            }
+            cout << endl;
+        }
     }
 };
 
-// Utility Function for calculating the size of an array
-int MultiStack::sizeOf(int arr[])
+int Stacks::totalElementsInArray()
 {
-    return my_sizeof(arr) / my_sizeof(arr[0]);
+    int size_arr = 0;
+
+    for (int i = 0; i < numStacks; i++)
+        size_arr += StackInfo[i].stackSize;
+    return size_arr;
 }
 
-int MultiStack::sizeOf(StackInfo arr[])
+bool Stacks::allStacksAreFull()
 {
-    return my_sizeof(arr) / my_sizeof(arr[0]);
+    return (N == totalElementsInArray());
 }
 
-// Returns the no. of items actually present in the array
-int MultiStack::numElements()
-{
-    int size = 0;
-    for (int i = 0; i < sizeOf(info); i++)
-        size+=info[i].size;
-    return size;
-}
-
-// Check if all stacks are full
-bool MultiStack::allStacksAreFull()
-{
-    return sizeOf(values) == numElements();
-}
-
-// Shift items in stack over by one element. If we have available capacity, 
-// then we'll end up shrinking the stack by one element. If we don't have 
+// Shift items in stack over by one element. If we have available capacity,
+// then we'll end up shrinking the stack by one element. If we don't have
 // available capacity, then we'll need to shift the next stack over too.
-void MultiStack::shift(int stackNo)
+void Stacks::shift(int stackNo)
 {
-    cout<<"\n///SHIFTING STACK NO."<<stackNo;
-    StackInfo stack = info[stackNo];
+    cout << "\nShifting Stack No." << stackNo;
 
-    // If this stack is at its full capacity, then move the next
-    // stack over by one element
-    if(stack.size >= stack.capacity)
+    // If the current stack is full, keep shifting the
+    // elements recursively until there is a space available
+    if (StackInfo[stackNo].stackSize >= StackInfo[stackNo].capacity)
     {
-        int nextStack = (stackNo+1)%sizeOf(info);
-        shift(nextStack);       // Shift the subsequent stacks recursively
-        stack.capacity++;      // Claim index that the next stack lost
+        int nextStackNo = (stackNo + 1) % numStacks;
+        shift(nextStackNo);
+        StackInfo[stackNo].capacity++;
     }
 
-    // Shift all elements in stack one-by-one
-    int index = stack.lastCapacityIndex();
-    while(stack.isWithinStackCapacity())
+    // Shift all elements of the current stack one by one
+    int last_index = StackInfo[stackNo].lastCapacityIndex();
+    while (StackInfo[stackNo].isWithinStackCapacity(last_index))
     {
-        values[index] = values[previousIndex[index]];
-        index = previousIndex(index);
+        mainArr[last_index] = mainArr[previousIndex(last_index)];
+        last_index = previousIndex(last_index);
     }
 
-    // Adjust stack data
-    values[stack.start] = 0;   // Clear the item for use by previous stack
-    stack.start = nextIndex(stack.start); // Shift the start pointer to point to next position
-    stack.capacity--;
+    // Adjust current stack's info
+    mainArr[StackInfo[stackNo].startIndex] = 0;                               // Clear item
+    StackInfo[stackNo].startIndex = nextIndex(StackInfo[stackNo].startIndex); // Move startIndex
+    StackInfo[stackNo].capacity--;                                            // Shrink Capacity
 }
 
 // Expand the current stack by shifting over other stacks
-void MultiStack::expand(int stackNo)
+void Stacks::expand(int stackNo)
 {
-    shift((stackNo+1)%sizeOf(info));
-    info[stackNo].capacity++;
+    shift((stackNo + 1) % numStacks);
 }
 
 // Adjust the given index to be within the range of 0 to arr.length-1
-int MultiStack::adjustIndex(int index)
+int Stacks::adjustIndex(int index)
 {
-    // C++'s mod operator can return neg values . For example, (-11 % 5) will
-    // return -1, not 4. We actually want the value to be 4 (since we're wrapping 
-    // around the index)
-    int arr_length = sizeOf(values);
-    return ((index%arr_length)+arr_length)%arr_length;
+    int max = N;
+    return (((index % max) + max) % max);
 }
 
-// Get index after the given index, adjusted for wraparound
-int MultiStack::nextIndex(int index)
+int Stacks::previousIndex(int index)
 {
-    return adjustIndex(index + 1);
+    return (adjustIndex(index - 1));
 }
 
-// Get index before the given index, adjusted for wraparound
-int MultiStack::previousIndex(int index)
+int Stacks::nextIndex(int index)
 {
-    return adjustIndex(index-1);
+    return (adjustIndex(index + 1));
 }
-
-
 
 int main()
 {
-    MultiStack* ms = new MultiStack(3, 5);
+    int numStacks = 3;
+    int defaultSize = 5;
 
-    ms->push(1, 15);
-    ms->push(0, 22);
-    ms->push(2, 28);
-    ms->push(1, 55);
+    N = numStacks * defaultSize;
 
-    cout<<"Topmost element of the stack: "<<ms->peek(1);
+    Stacks *ms = new Stacks(numStacks, defaultSize);
+
+    ms->push(0, 15);
+    ms->push(0, 23);
+    ms->push(0, 49);
+    ms->push(0, 57);
+    ms->push(0, 11);
+    ms->push(0, 68);
+
+    ms->push(1, 88);
+    ms->push(1, 83);
+    ms->push(1, 76);
+
+    ms->push(2, 22);
+    ms->push(2, 33);
+    ms->push(2, 44);
+
+    ms->displayStacks();
+
+    cout << "\nAfter Poppin'...";
+
+    ms->pop(1);
+    ms->pop(1);
+    ms->pop(0);
+
+    ms->displayStacks();
 }

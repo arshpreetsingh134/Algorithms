@@ -39,5 +39,5 @@ int rodCutAux(int* p, int n, int* r){
 int main(){
     int p[] = {1,5,8,9,10,17,17,20,24,30};
     int n = 8;
-    cout<<"The most optimized solution for "<<n<<" is: "<<rodCut(p,n);
+    cout<<"The most optimized solution for "<<n<<" is: "<<rodCut(p,n)<<endl;
 }
