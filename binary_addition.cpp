@@ -31,7 +31,7 @@ int* method2(int *A, int *B){
 int main(){
     int A[] = {1,0,0,1};
     int B[] = {0,1,1,0};
-    int *C = method2(A, B, Base);
+    int *C = method2(A, B);
 
     cout<<"A+B is: ";
     for(int i=0; i<5; i++){
