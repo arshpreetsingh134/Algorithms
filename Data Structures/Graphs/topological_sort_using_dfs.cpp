@@ -21,7 +21,6 @@ public:
         this->V = V;
         adj = new list<int>[V];
         visited = new bool[V]; // to keep track of the visited nodes
-        //tops = new int[V];          // to store the Topological Ordering of the elements in the graph
     }
 
     void addEdge(int v, int item)
