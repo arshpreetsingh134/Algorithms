@@ -1,3 +1,6 @@
+// Stanford Exercise, Course 3, Week 2, Ques.2
+// Find max. clusters for a given spacing using Hamming Distance of 24 bits as a metric
+
 import java.io.*;
 import java.util.*;
 
@@ -176,7 +179,7 @@ class BigClustering
   public static void main(String[] args) {
 
     // Get the inputs.
-    String fileName = "clustering_big.txt";
+    String fileName = "C:/cppProjects/clustering_big.txt";
     int spacing = 3;
 
     // Benchmarks.
