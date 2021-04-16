@@ -1,247 +1,206 @@
-import java.io.IOException;
-import java.util.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.HashMap;
-import java.util.Set;
 import java.io.*;
+import java.util.*;
 
-class Edge implements Comparable<Edge>
+
+// class UnionFind same as that implemented in "KMeans.java"
+
+class BigClustering
 {
-    int u;      // src
-    int v;      // dest
-    int weight; // weight of the edge
-
-    public Edge(int u, int v, int weight)
+    // Loading the labels of vertices from a file
+    private static String[] loadLabelsFromFile(String filename)
     {
-        this.u = u;
-        this.v = v;
-        this.weight = weight;
-    }
+        Scanner reader = null;
 
-    public String toString()
-    {
-        return "Edge: "+ u + " - " + v + " | " + weight;
-    }
-
-    // If current edge is longer than other edge,
-    // return +ve else -ve
-    public int compareTo(Edge another)
-    {
-        return this.weight-another.weight;
-    }
-};
-
-class UnionFind
-{
-    class UFNode
-    {
-        int parent;
-        int rank;
-
-        UFNode(int parent, int rank)
-        {
-            this.parent = parent;
-            this.rank = rank;
+        // Open the file for reading
+        try{
+            reader = new Scanner(new File(filename));
+        } catch (FileNotFoundException e) {
+            System.err.println("Error: File not found");
+            e.printStackTrace();
+            return null;
         }
-    }
 
-    private UFNode[] nodes;
-    private int V;          // No. of vertices in the graph
-    private int count;      // For keeping track of no. of clusters
+        // Get the no. of vertices
+        int V = reader.hasNextInt()? reader.nextInt():0;
+        int bits = reader.hasNextInt()?reader.nextInt():0;
 
-    public UnionFind(int V)
-    {
-        if(V<0)
-            throw new IllegalArgumentException();
+        // Clear buffer till the end of line
+        reader.nextLine();
 
-        this.V = V;
-        nodes = new UFNode[V];
-        
-        for(int i=0; i<V; i++)
-            nodes[i] = new UFNode(i, 0);
-
-        this.count = V;         // Initially, there are V clusters, each containing one vertex
-    }
-
-    // Find the parent of a given vertex recursively
-    public int Find(int u)
-    {
-        if(u<0 || u>=nodes.length)
-            throw new IndexOutOfBoundsException();
-
-        if(nodes[u].parent!=u)
-            nodes[u].parent = Find(nodes[u].parent);
-
-        return nodes[u].parent;
-    }
-
-    // Perform Union of 2 Clusters
-    public void Union(int u, int v)
-    {
-        u = Find(u);
-        v = Find(v);
-
-        if(u!=v)
-        {
-            if(nodes[u].rank < nodes[v].rank)
-            {
-                int temp = u;
-                u = v;
-                v = temp;
-            }
-
-            nodes[v].parent = u;
-
-            if(nodes[u].rank==nodes[v].rank)
-                nodes[u].rank++;
-        }
-        count--;
-    }
-
-    public int getClusters()
-    {
-        return count;
-    }
-
-    public boolean isConnected(int u, int v)
-    {
-        return (Find(u) == Find(v));
-    }
-
-    private void printClusterUtil(Set<Entry<Integer, ArrayList<Integer>>> set)
-    {
-        System.out.println("Following is the cluster :-\n{");
-        for(Map.Entry<Integer, ArrayList<Integer>> entry:  set)
-        {
-            int key = entry.getKey();
-            System.out.print("   "+key+": [ ");
-            ArrayList<Integer> val = entry.getValue();
-
-            for(int i: val)
-            {
-                System.out.print(i + ",");
-            }
-            System.out.print(" ]\n");
-        }
-        System.out.println("}");
-    }
-
-    public void printCluster()
-    {
-        Map<Integer, ArrayList<Integer>> leaders = new HashMap<Integer, ArrayList<Integer>>();
-
-        for(int i=0; i<nodes.length; i++)
-            leaders.put(nodes[i].parent, null);
+        // List of all labels
+        String[] labels = new String[V];
 
         for(int i=0; i<V; i++)
         {
-            int leader = Find(i);
-            ArrayList<Integer> leaderList = leaders.get(Find(i));
+            String line = reader.nextLine();
+            char[] characters = line.toCharArray();
 
-            if(leaderList==null)
-                leaderList = new ArrayList<Integer>();
+            // Remove all spaces from the character array of bits
+            StringBuilder sb = new StringBuilder();
+            for(char c:characters)
+                if(!Character.isSpaceChar(c))
+                    sb.append(c);
 
-            leaderList.add(i);
-            leaders.put(leader, leaderList);
+            // Add the label of bits to our list of labels
+            labels[i] = sb.toString();
         }
 
-        Set<Map.Entry<Integer, ArrayList<Integer>>> set=leaders.entrySet();
-  
-        printClusterUtil(set);
-    }
-}
-
-public class KMeans1
-{
-    private int V;
-    private int E;
-    private int maxClusterDistance;
-
-    private List<Edge> edges;
-
-    KMeans1(int V, int E)
-    {
-        this.V = V;
-        this.E = E;
-
-        edges = new ArrayList<Edge>();
+        reader.close();
+        return labels;
     }
 
-    public int getMaxSpacing(int clusterCount)
+    // Get only the unique labels
+    private static ArrayList<String> getUniqueLabels(String filename)
     {
-        Collections.sort(edges);
+        String[] labels = loadLabelsFromFile(filename);
 
-        UnionFind uf = new UnionFind(V);
+        if(labels==null) return null;
 
-        if(clusterCount>uf.getClusters())
+        // Sort the labels
+        Arrays.sort(labels);
+
+        // Create an arrayList to hold onto the unique labels
+        ArrayList<String> uniqueLabels = new ArrayList<String>();
+
+        uniqueLabels.add(labels[0]);
+
+        for(int i=1; i<labels.length; i++)
         {
-            try
-            {
-                throw new Exception("Present Cluster Counter is less than input.");
-            }
-            catch(Exception e)
-            {
-                System.out.println(e.getMessage());
-            }
-        }
-
-        else
-        {
-            for(int i=0; i<E; i++)
-            {
-                Edge edge = edges.get(i);
-
-                if(!uf.isConnected(edge.u, edge.v))
-                {
-                    if(uf.getClusters()==clusterCount)
-                    {
-                        //uf.printCluster();
-                        return maxClusterDistance=edge.weight;
-                    }
-
-                    int v1 = uf.Find(edge.u);
-                    int v2 = uf.Find(edge.v);
-                    uf.Union(v1,v2);
-                }
-
-            }
-        }
-        return -1;
-    }
-
-    public static void main(String[] args) throws IOException
-    {
-        KMeans1 graph = new KMeans1(500, 124750);
-        
-        FileInputStream fstream = new FileInputStream("clustering.txt");
-        DataInputStream in = new DataInputStream(fstream);
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
-        String data;
-        
-        while ((data = br.readLine()) != null)
-        {
-            int tempArr[] = new int[3];
-            String[] tmp = data.split(" ");
-            int i = 0;
-            for(String s:tmp)
-            {
-                tempArr[i] = Integer.parseInt(s);
+            while(labels[i].equals(labels[i-1]))
                 i++;
-            }
-            graph.edges.add(new Edge(tempArr[0]-1, tempArr[1]-1, tempArr[2]));
+            uniqueLabels.add(labels[i]);
         }
-        
-        int k = 4;      // Max no. of clusters needed
-        
-        graph.maxClusterDistance = graph.getMaxSpacing(k);
-
-        if(graph.maxClusterDistance!=-1)
-            System.out.println("Maximum Cluster Spacing for a " + k + "-clustering is: " + graph.maxClusterDistance);
-        else
-            System.out.println("Something went Wrong");
-
-        br.close();
+        return uniqueLabels;
     }
+
+    // Returns the total no. of combinations when choosing k elements out of n
+    private static int getNChooseK(int n, int k)
+    {
+        int result =1;
+
+        for(int i=0; i<k; i++)
+            result = (result * (n-i))/(k+i);
+
+        return result;
+    }
+
+// Returns the inverted character (0 or 1) for the given character. 
+  private static char invertBit(char bit) throws IllegalArgumentException 
+  {
+    switch (bit) 
+    {
+      case '0':
+        return '1';
+      case '1':
+        return '0';
+      default:
+        throw new IllegalArgumentException();
+    }
+  }
+
+   /** Utility function for generating inverted permutations of a binary string. */
+  private static void generateCombinationsUtil(
+      char[] characters, int startIndex, int bitsToInvert, ArrayList<String> combinations) {
+    if (bitsToInvert == 0) return;
+
+    for (int i = startIndex; i <= characters.length - bitsToInvert; i++) {
+      // Invert the bit at current position.
+      characters[i] = invertBit(characters[i]);
+
+      // Generate combinations starting from the next index but with one less bit inverted.
+      generateCombinationsUtil(characters, i + 1, bitsToInvert - 1, combinations);
+
+      // Add to the list of combinations.
+      if (bitsToInvert == 1) combinations.add(new String(characters));
+
+      // Invert back the bit at the current position.
+      characters[i] = invertBit(characters[i]);
+    }
+  }
+
+  /** Generates inverted permutations of a binary string with `k` bits inverted. */
+  private static ArrayList<String> generateCombinations(String string, int k) {
+    // Calculate the total number of combinations that can be produced.
+    int totalCombos = getNChooseK(string.length(), k);
+
+    // Create a list for holding the combinations.
+    ArrayList<String> combinations = new ArrayList<String>(totalCombos);
+
+    // Generate the combinations.
+    generateCombinationsUtil(string.toCharArray(), 0, k, combinations);
+
+    return combinations;
+  }
+
+  /** Returns the maximum number of clusters that can be formed while ensuring the given spacing. */
+  private static int getMaxClusters(ArrayList<String> vertices, int spacing) {
+    // Create a hash table and hash all labels.
+    HashMap<String, Integer> hashTable = new HashMap<String, Integer>(vertices.size());
+
+    for (int i = 0; i < vertices.size(); i++) hashTable.put(vertices.get(i), i);
+
+    // Initialize a UnionFind.
+    UnionFind uf = new UnionFind(vertices.size());
+
+    // Initially, the number of clusters will be the same as total vertices.
+    int numClusters = vertices.size();
+
+    // Start grouping vertices, starting from the shortest edges.
+    for (int i = 1; i < spacing; i++) {
+
+      for (int j = 0; j < vertices.size(); j++) {
+        // Get the possible candidate vertices that are at distance `i + 1` away from the current
+        // vertex.
+        ArrayList<String> possibleLabels = generateCombinations(vertices.get(j), i);
+
+        for (String label : possibleLabels) {
+          // If a vertex with this label exists, then find which cluster it belongs to.
+          if (hashTable.containsKey(label)) {
+            int vertex = hashTable.get(label);
+
+            // Merge the two clusters if they aren't merged already.
+            if (uf.Find(j) != uf.Find(vertex)) {
+              // Everytime two clusters are merged, total number of clusters gets reduced by 1.
+              numClusters--;
+              uf.Union(j, vertex);
+            }
+          }
+        }
+      }
+    }
+
+    return numClusters;
+  }
+
+
+  public static void main(String[] args) {
+
+    // Get the inputs.
+    String fileName = "clustering_big.txt";
+    int spacing = 3;
+
+    // Benchmarks.
+    double timeLoadingLabels = 0.0;
+    double timeFindingMaxClusters = 0.0;
+
+    // Load the labels and benchmark the time taken.
+    double startTime = System.nanoTime();
+    ArrayList<String> labels = getUniqueLabels(fileName);
+    timeLoadingLabels = (System.nanoTime() - startTime) / 1000000.0;
+    if (labels == null) {
+      System.err.println("Could not load labels");
+      System.exit(3);
+    }
+
+    // Get the max number of clusters for a given spacing and benchmark the time taken.
+    startTime = System.nanoTime();
+    int maxClusters = getMaxClusters(labels, spacing);
+    timeFindingMaxClusters = (System.nanoTime() - startTime) / 1000000.0;
+
+    System.out.println("Max clusters: " + maxClusters + "\n");
+
+    // Display the benchmark results.
+    System.out.printf("TIME IN loading labels:           %8.2fms\n", timeLoadingLabels);
+    System.out.printf("TIME IN finding the max clusters: %8.2fms\n", timeFindingMaxClusters);
+  }
 }

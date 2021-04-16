@@ -1,43 +1,54 @@
-// Dynamic Programming- Top-Down "Memoized" Approach for Optimized Rod Cutting
+// Dynamic Programming- Top-Down "Memoized" Approach for Optimized Rod Cutting Problem.
 
-#include<iostream>
+// Given a rod of length n inches and a table of prices p[i] for i = 1, 2, ...., n,
+// determine the maximum revenue r[n] obtainable by cutting up the rod and selling the pieces.
+
+#include <iostream>
 using namespace std;
 
-// price[0..n]
-int rodCutAux(int*, int, int*);
-
-int rodCut(int* p, int n){
-    int *r = new int[n+1];
-    for(int i=0; i<n+1; i++)
-        r[i]=-10000;
-    return rodCutAux(p, n, r);
-}
-
-int rodCutAux(int* p, int n, int* r){
+// Call this function recursively
+int rodCutAux(int *p, int n, int *r)
+{
     int max_price, temp;
-    if(r[n]>=0)
+
+    // If result already in DP Array, return it
+    if (r[n] >= 0)
         return r[n];
 
-    if(n==0)
+    // Base Case
+    if (n == 0)
         max_price = 0;
 
-    else{
+    else
+    {
         max_price = -10000;
-        for(int i=1; i<=n; i++){
+        for (int i = 1; i <= n; i++)
+        {
 
-            temp = rodCutAux(p, n-i, r);      //n-i from 3 to 0
-            if((p[i-1] + temp) > max_price){
-                max_price = p[i-1] + temp;
-            }
+            // Recurrence: r[n] = max(p[i] + r[n-i])   { for i = 0 to n-1 }
+
+            temp = rodCutAux(p, n - i, r);
+            if ((p[i - 1] + temp) > max_price)
+                max_price = p[i - 1] + temp;
         }
     }
 
-    r[n]=max_price;
+    // Memoizing- Storing the result of subproblems in the DP Array
+    r[n] = max_price;
     return max_price;
 }
 
-int main(){
-    int p[] = {1,5,8,9,10,17,17,20,24,30};
-    int n = 8;
-    cout<<"The most optimized solution for "<<n<<" is: "<<rodCut(p,n)<<endl;
+int rodCut(int *p, int n)
+{
+    int *r = new int[n + 1];
+    for (int i = 0; i < n + 1; i++)
+        r[i] = -10000;
+    return rodCutAux(p, n, r);
+}
+
+int main()
+{
+    int p[] = {1, 5, 8, 9, 10, 17, 17, 20, 24, 30};
+    int n = 4;
+    cout << "The most optimized solution for " << n << " is: " << rodCut(p, n) << endl;
 }
