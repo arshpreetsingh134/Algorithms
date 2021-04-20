@@ -1,3 +1,6 @@
+// Linked List Implementation with extra functionality (addAtHead, addAtTail, addAtIndex,
+// deleteAtHead, deleteAtTail, deleteAtIndex)
+
 #include <iostream>
 using namespace std;
 

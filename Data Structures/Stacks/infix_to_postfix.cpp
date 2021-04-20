@@ -26,17 +26,17 @@ string toPostfix(string exp)
     int i = 0;
     for (int i = 0; i < l; i++)
     {
-        // If the scanned character is an operand, add
+        // Case 1: If the scanned character is an operand, add
         // it to the output string
         if ((exp[i] >= 'a' && exp[i] <= 'z') || (exp[i] >= 'A' && exp[i] <= 'Z'))
             op += exp[i];
 
-        // If the scanned character is a '(', push it
+        // Case 2: If the scanned character is a '(', push it
         // to the stack
         else if (exp[i] == '(')
             s.push('(');
 
-        // If the scanned character is a ')', pop from
+        // Case 3: If the scanned character is a ')', pop from
         // the stack until a '(' is encountered
         else if (exp[i] == ')')
         {
@@ -53,11 +53,11 @@ string toPostfix(string exp)
                 s.pop();
         }
 
-        // If an operator is scanned, then check if the precedence of 
-        // the scanned operator is greater than that inside the stack,
-        // or if the stack is empty('N'). If not, keep poppin' until
-        // the stack is empty or until the precedence of operator becomes
-        // greater than the precedence of operator in the stack, then finally
+        // Case 4: If an operator is scanned, then check if the precedence
+        // of the scanned operator is greater than that inside the stack,
+        // or if the stack is empty('N'). If not, keep poppin' until the
+        // stack is empty or until the precedence of operator becomes greater
+        // than the precedence of operator in the stack, then finally
         // push it to the stack
         else
         {
@@ -84,7 +84,8 @@ string toPostfix(string exp)
 
 int main()
 {
-    string exp = "(a+(b*c))/d+e-f";
+    // string exp = "(a+(b*c))/d+e-f";
+    string exp = "a+b*(c+d)";
 
     cout<<"Postfix expression for "<<exp<<" is: "<<toPostfix(exp);
 }
