@@ -1,8 +1,10 @@
 // 2-Sum Problem using Hash Table Data Structure- O(n)- Due to Constant Time Searching
+// Check if given array has 2 elements whose sum is equal to the given value
+
 #include <iostream>
 #include <vector>
 #include <unordered_set>
-using namespace std;
+    using namespace std;
 
 int countPairs(vector<int> &A, int sum)
 {

@@ -1,7 +1,8 @@
+// Hash Table Implemmentation using Separate Chaining in C++
+
 // Hash table (also, hash map) is a data structure that basically maps keys to values.
 // A hash table uses a hash function to compute an index into an array of buckets or
 // slots, from which the corresponding value can be found.
-// 162
 
 #define CAPACITY 50000 // Size of the Hash Table
 #include <iostream>
