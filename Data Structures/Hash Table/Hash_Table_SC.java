@@ -2,6 +2,8 @@
 
 import java.util.*;
 
+@SuppressWarnings("unchecked")
+
 // DS for the key-value pairs in Hash Table
 class Entry<K, V> {
     int hash;
