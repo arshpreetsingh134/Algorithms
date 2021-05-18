@@ -23,7 +23,7 @@ int Invert1(int A[], int N)
     return count;
 }
 
-// 2. Piggybagging on Merge Sort (will return the no. of inversions for each merge) (O(nlogn))
+// 2. Piggybacking on Merge Sort (will return the no. of inversions for each merge) (O(nlogn))
 int Merge(int A[], int first, int mid, int last)
 {
     int counter = 0;
