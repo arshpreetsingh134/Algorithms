@@ -90,12 +90,12 @@ class BST
         // Dig into the left subtree if the elem is less than
         // the root value
         if (elem < node->data)
-            node->left = deleteNode(node->left, elem);
+            return node->left = deleteNode(node->left, elem);
 
         // Dig into the right subtree if the elem is more than
         // the root value
         else if (elem > node->data)
-            node->right = deleteNode(node->right, elem);
+            return node->right = deleteNode(node->right, elem);
 
         // Found the node we wish to delete
         else
@@ -139,6 +139,8 @@ class BST
                 // Node temp = findMin(node.right);
                 // node.data = temp.data;
                 // node.right = deleteNode(node.right, tmp.data);
+
+                return node;
             }
         }
     }
@@ -151,6 +153,7 @@ class BST
         return max(height(node->left), height(node->right)) + 1;
     }
 
+    // In-order Traversal of the BST
     void traverse(Node *root)
     {
         if (root == NULL)
@@ -161,6 +164,7 @@ class BST
         traverse(root->right);
     }
 
+    // Return the pointer to the node where the value is present
     Node *find(Node *t, int x)
     {
         if (t == NULL)
@@ -239,7 +243,7 @@ public:
     // Compute the height of the tree
     int height()
     {
-        height(root);
+        return height(root);
     }
 
     void traverse()
