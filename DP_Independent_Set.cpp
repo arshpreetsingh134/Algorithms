@@ -6,7 +6,7 @@ using namespace std;
 
 // Bottom-up Approach...
 // (Either select the optimal solution of the Graph G'' and the weight of i-th node,
-//  or excude the i-th node and select the optimal solution of the Graph G')
+//  or exclude the i-th node and select the optimal solution of the Graph G')
 int *calculateWeight(int A[], int N)
 {
     int i;
@@ -22,7 +22,7 @@ int *calculateWeight(int A[], int N)
     return B;
 }
 
-// Print the Independent Set for the current array
+// Reconstruction Algorithm: Print the Independent Set for the current array
 void printSet(int A[], int B[], int N)
 {
     int i = N-1;
