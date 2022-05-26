@@ -40,3 +40,5 @@ tasks.json
 
 *.exe
 **/*.exe
+
+tempCodeRunnerFile.cpp
