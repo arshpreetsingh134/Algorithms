@@ -11,8 +11,6 @@ import java.io.PrintStream;
 import java.util.InputMismatchException;
 import java.util.regex.Pattern;
 
-
-
 public class KaratsubaMultiplication {
 
     // ********************************************************************* //
@@ -106,10 +104,11 @@ public class KaratsubaMultiplication {
         public boolean isSpaceChar(int ch);
     }
 
-     // ********************************************************************* //
+    // ********************************************************************* //
 
     /**
      * Finding integer sum of 2 large integers as string
+     * 
      * @param num1
      * @param num2
      * @return String
@@ -126,7 +125,7 @@ public class KaratsubaMultiplication {
         // Take an empty String for storing result
         String str = "";
 
-        // Calculate length of both String
+        // Calculate length of both Strings
         int n1 = str1.length(), n2 = str2.length();
         int diff = n2 - n1;
 
@@ -159,10 +158,13 @@ public class KaratsubaMultiplication {
     }
 
     /**
-     * Karatsuba Multiplication - ab x cd = ((10^n'*a)+b) x ((10^n'*c)+d) = 10^n*ac + 10^n'(ad + bc) + bd
+     * Karatsuba Multiplication - ab x cd = ((10^n'*a)+b) x ((10^n'*c)+d) = 10^n*ac
+     * + 10^n'(ad + bc) + bd
      * where n' = n/2
-     * Time Complexity:
-     * Space Complexity:
+     * Recurrence Relation: T(n) = 3T(n/2) + O(n)
+     * Time Complexity: O(n^log3) = O(n^1.59)
+     * Space Complexity: O(n)
+     * 
      * @param num1
      * @param num2
      * @return String - Product of 2 numbers
@@ -243,23 +245,40 @@ public class KaratsubaMultiplication {
     }
 }
 
-//** Input */
-// 4
 
-// 2
-// 3
+/********************************************
+ * Test Cases
+ * ******************************************
+ * 
+4
 
-// 56
-// 2
+2
+3
 
-// 56
-// 258
+56
+2
 
-// 3141592653589793238462643383279502884197169399375105820974944592
-// 2718281828459045235360287471352662497757247093699959574966967627
+56
+258
 
-//** Output */
-// 6
-// 112
-// 14448
-// 8539734222673567065463550869546574495034888535765114961879601127067743044893204848617875072216249073013374895871952806582723184
+3141592653589793238462643383279502884197169399375105820974944592
+2718281828459045235360287471352662497757247093699959574966967627
+
+ *
+ * 
+ */
+
+
+/********************************************
+ * Output
+ * *******************************************
+ *
+
+6
+112
+14448
+8539734222673567065463550869546574495034888535765114961879601127067743044893204848617875072216249073013374895871952806582723184
+
+ *
+ *
+ */
