@@ -113,7 +113,7 @@ public class CountInversions {
      * @param mid Mid Position
      * @param l   Last Position
      */
-    private static int merge(int[] A, int f, int mid, int l) {
+    private static Long merge(int[] A, int f, int mid, int l) {
 
         int n1 = mid - f;
         int n2 = l - mid + 1;
@@ -134,7 +134,7 @@ public class CountInversions {
 
         j = 0;
         k = 0;
-        int count = 0;
+        Long count = (long)0;
 
         for (int i = f; i <= l; i++) {
 
@@ -167,14 +167,14 @@ public class CountInversions {
      * @param f First Position
      * @param l Last Position
      */
-    private static int mergeSortRecursive(int[] A, int f, int l) {
+    private static Long mergeSortRecursive(int[] A, int f, int l) {
         if (f >= l)
-            return 0;
+            return (long)0;
 
         int mid = (int) Math.ceil((double) (f + l) / 2);
-        int a = mergeSortRecursive(A, f, mid - 1);
-        int b = mergeSortRecursive(A, mid, l);
-        int c = merge(A, f, mid, l);
+        Long a = mergeSortRecursive(A, f, mid - 1);
+        Long b = mergeSortRecursive(A, mid, l);
+        Long c = merge(A, f, mid, l);
         return a+b+c;
     }
 
@@ -189,7 +189,7 @@ public class CountInversions {
      * @param A Array for which inversions need to be computed
      * @return int No. of Inversions
      */
-    public static int countInversions(int[] A) {
+    public static Long countInversions(int[] A) {
         int[] B = new int[A.length];
         for(int i=0; i<A.length; i++) {
             B[i] = A[i];
@@ -204,7 +204,7 @@ public class CountInversions {
         for (int i = 0; i < n; i++) {
             A[i] = in.readInt();
         }
-        int numInversions = countInversions(A);
+        Long numInversions = countInversions(A);
         System.out.println("No. of Inversions in array " + t1 + ": " + numInversions);
     }
 
@@ -218,35 +218,42 @@ public class CountInversions {
     }
 }
 
-/**
+/*******************************************************
  * Test Cases
+ * *****************************************************
  * 
-    5
+5
 
-    8
-    87 65 45 39 35 31 22 15
+8
+87 65 45 39 35 31 22 15
 
-    7
-    8 5 2 1 3 9 4
+7
+8 5 2 1 3 9 4
 
-    9
-    8 7 10 3 5 2 6 9 1
+9
+8 7 10 3 5 2 6 9 1
 
-    12
-    4 11 7 10 8 15 33 6 9 28 112 2
+12
+4 11 7 10 8 15 33 6 9 28 112 2
 
-    25
-    58 66 156 23 47 89 33 25 101 47 99 65 83 27 56 42 13 10 5 7 15 86 55 34 78
+25
+58 66 156 23 47 89 33 25 101 47 99 65 83 27 56 42 13 10 5 7 15 86 55 34 78
 
 */
 
-/**
+/*******************************************************
  * Output
+ * *****************************************************
  * 
-    No. of Inversions in array 1: 28
-    No. of Inversions in array 2: 11
-    No. of Inversions in array 3: 24
-    No. of Inversions in array 4: 26
-    No. of Inversions in array 5: 185
+No. of Inversions in array 1: 28
+No. of Inversions in array 2: 11
+No. of Inversions in array 3: 24
+No. of Inversions in array 4: 26
+No. of Inversions in array 5: 185
 
  */
+
+ /**
+  * Output for Large Input ("../Large Inputs/CountInversions.txt"): 
+  * 2407905288
+  */
